@@ -70,7 +70,7 @@
                             </div>
 
                             <div class="form-group mt-3">
-                                <textarea id="description" rows="10" placeholder="Enter contact description" name="description" class="form-control"></textarea>
+                                <textarea id="mytextarea" rows="10" placeholder="Enter contact description" name="description" class="form-control"></textarea>
                             </div>
 
                             <div class="custom-file">
@@ -90,7 +90,12 @@
 
     </div>
 
-
+    <script src="https://cdn.tiny.cloud/1/2ub4dxmjdh3rm89huwjub1tcn85sj1qf9wq9viiokyhievz0/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+    <script>tinymce.init({
+    selector: '#mytextarea',
+        menubar:false
+    });
+    </script>
 </section>
 </body>
 </html>

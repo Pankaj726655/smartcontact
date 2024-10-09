@@ -40,9 +40,10 @@
                         </a>
                     </td>
                     <td>
-                        <button class="btn btn-danger btn-sm">Delete</button>
-                        <button class="btn btn-primary btn-sm">Update</button>
-<!--                        <button class="btn btn-success btn-sm">View</button>-->
+                        <a th:href="'/user/delete/'+${c.cid}" class="btn btn-danger btn-sm">Delete</a>
+                        <form method="post" th:action="@{'/user/update-contact/'+${c.cid}}">
+                            <button  type="submit" class="btn btn-primary btn-sm mt-2">Update</button>
+                        </form>
                     </td>
                 </tr>
                 </tbody>

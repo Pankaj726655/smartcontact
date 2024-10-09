@@ -15,14 +15,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.Principal;
-import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -77,11 +75,9 @@ public class UserController {
             userRepository.save(user);
 
             // message success
-            session.setAttribute("message", new Message("Contact added successful !!", "success"));
+            session.setAttribute("message", new Message("Contact added successfully !!", "success"));
         }catch (Exception e){
-            System.out.println("ERROR : "+ e);
             session.setAttribute("message", new Message("Something went wrong !! Try again.", "danger"));
-
         }
         return "normal/add_contact_form";
     }
@@ -99,6 +95,7 @@ public class UserController {
         return "normal/show-contacts";
     }
 
+    // Show contact details
     @GetMapping("contact/{cid}")
     public String showContactDetails(@PathVariable int cid, Model model, Principal principal){
         Optional<Contact> contactOptional = contactRepository.findById(cid);
@@ -111,6 +108,71 @@ public class UserController {
             model.addAttribute("title",contact.getName());
         }
     return "normal/show_contact_details";
+    }
+
+    // Delete contact
+    @GetMapping("/delete/{cid}")
+    public String deleteContact(@PathVariable("cid") int cid, Principal principal, HttpSession session){
+        Optional<Contact> contactOptional = contactRepository.findById(cid);
+        Contact contact = contactOptional.get();
+        User user = userRepository.findByEmail(principal.getName());
+        if(user.getId() == contact.getUser().getId()) {
+            File file = new File("target/classes/static/img/"+contact.getImage());
+            file.delete();
+            contactRepository.delete(contact);
+            session.setAttribute("message", new Message("Contact deleted successfully...", "success"));
+        }
+        return "redirect:/user/show-contacts/0";
+    }
+
+    // Update Contact
+    @PostMapping("/update-contact/{cid}")
+    public String updateContact(@PathVariable("cid") int cid, Model model){
+        Contact contact = contactRepository.findById(cid).get();
+        model.addAttribute("contact", contact);
+        return "normal/update_contact";
+    }
+
+    // Process for update contact
+    @PostMapping("/process-update/{cid}")
+    public String processUpdate(@PathVariable("cid") Integer cid,
+                                @ModelAttribute Contact contact,
+                                @RequestParam("profileImage") MultipartFile file,
+                                HttpSession session){
+        try{
+        Contact oldContact = contactRepository.findById(cid).get();
+        oldContact.setName(contact.getName());
+        oldContact.setSecondName(contact.getSecondName());
+        oldContact.setEmail(contact.getEmail());
+        oldContact.setPhone(contact.getPhone());
+        oldContact.setWork(contact.getWork());
+        oldContact.setDescription(contact.getDescription());
+        if (file.isEmpty()) {
+            oldContact.setImage(oldContact.getImage());
+        } else {
+            File oldImage = new File("target/classes/static/img/"+oldContact.getImage());
+            oldImage.delete();
+
+            File saveFile = new ClassPathResource("static/img").getFile();
+            Path path  = Paths.get(saveFile.getAbsoluteFile()+File.separator+file.getOriginalFilename());
+            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+            oldContact.setImage(file.getOriginalFilename());
+        }
+            contactRepository.save(oldContact);
+        session.setAttribute("message", new Message("Contact update successfully !!", "success"));
+    }catch (Exception e){
+        session.setAttribute("message", new Message("Something went wrong !! Try again.", "danger"));
+    }
+        return "redirect:/user/contact/"+contact.getCid();
+    }
+
+    // Profile
+    @GetMapping("/profile")
+    public String profile(Model model, Principal principal){
+        model.addAttribute("title", "Profile");
+        User user = userRepository.findByEmail(principal.getName());
+        model.addAttribute("user", user);
+        return "normal/profile";
     }
 
 

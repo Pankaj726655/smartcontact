@@ -3,11 +3,24 @@
       th:replace="~{normal/base::layout(~{::section})}">
 <head>
     <meta charset="UTF-8">
-    <title>User Dashboard</title>
+    <title th:title="${title}"></title>
 </head>
 <body>
 <section>
-    <h1>hi</h1>
+    <div class="card mr-3 ml-3">
+        <div class="card-body">
+            <div class="container text-center mt-3">
+                <img src=""
+                 th:src="@{/img/user_dashboard.png}" 
+                 style="width:200px; height:200px;"
+                 alt="Profile picture">
+                <h2 class="mt-2" >Start adding your contact on cloud...</h2>
+                <form th:action="@{/user/add-contact}">
+                <button class="btn btn-primary btn-block mt-3">ADD NEW CONTACT</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </section>
 </body>
 </html>
